@@ -13,6 +13,8 @@ from tanscope.core.config import Config
 from tanscope.core.constants import MAX_CONCURRENT_DOWNLOADS
 from tanscope.db.engine import build_engine, build_session_factory
 from tanscope.db.stats_repository import StatsRepository
+from tanscope.db.tracked_repository import TrackedRepository
+from tanscope.services.delivery import MediaDelivery
 from tanscope.services.download.base import DownloadSource
 from tanscope.services.download.composite import CompositeDownloadSource
 from tanscope.services.download.gallery_dl_source import GalleryDlSource
@@ -22,6 +24,9 @@ from tanscope.services.download.ytdlp_source import YtDlpSource
 from tanscope.services.image_search.base import ImageSearchProvider
 from tanscope.services.image_search.duckduckgo import DuckDuckGoImageSearch
 from tanscope.services.image_search.service import ImageSearchService
+from tanscope.services.watch.poller import ProfileWatcher
+from tanscope.services.watch.scheduler import WatchScheduler
+from tanscope.services.watch.service import WatchService
 
 
 class AppProvider(Provider):
@@ -54,6 +59,10 @@ class AppProvider(Provider):
     @provide
     def stats_repository(self, session_factory: async_sessionmaker) -> StatsRepository:
         return StatsRepository(session_factory)
+
+    @provide
+    def tracked_repository(self, session_factory: async_sessionmaker) -> TrackedRepository:
+        return TrackedRepository(session_factory)
 
     @provide
     def image_provider(self) -> ImageSearchProvider:
@@ -99,3 +108,27 @@ class AppProvider(Provider):
         )
         yield instance
         await instance.session.close()
+
+    @provide
+    def media_delivery(self, bot: Bot) -> MediaDelivery:
+        return MediaDelivery(bot)
+
+    @provide
+    def profile_watcher(self, config: Config) -> ProfileWatcher:
+        return ProfileWatcher(
+            archive_path=config.watch_archive_path,
+            cookies_file=config.cookies_file,
+            fetch_limit=config.watch_fetch_limit,
+        )
+
+    @provide
+    def watch_service(
+        self, repo: TrackedRepository, watcher: ProfileWatcher, config: Config
+    ) -> WatchService:
+        return WatchService(repo, watcher, config.downloads_dir)
+
+    @provide
+    def watch_scheduler(
+        self, service: WatchService, delivery: MediaDelivery, config: Config
+    ) -> WatchScheduler:
+        return WatchScheduler(service, delivery, config.watch_interval_seconds)

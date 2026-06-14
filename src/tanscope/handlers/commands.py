@@ -5,6 +5,7 @@ from dishka.integrations.aiogram import FromDishka
 
 from tanscope.core.config import Config
 from tanscope.db.stats_repository import StatsRepository, StatsSummary
+from tanscope.handlers.permissions import is_admin
 
 router = Router()
 
@@ -25,8 +26,7 @@ async def handle_stats(
     stats: FromDishka[StatsRepository],
     config: FromDishka[Config],
 ) -> None:
-    user = message.from_user
-    if user is None or user.id not in config.admin_ids:
+    if not is_admin(message.from_user, config):
         return
     summary = await stats.summary()
     await message.answer(_render(summary))

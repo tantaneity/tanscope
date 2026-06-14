@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from aiogram import Bot, Dispatcher
@@ -7,7 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from tanscope.core.container import AppProvider
 from tanscope.db.engine import init_db
-from tanscope.handlers import commands, download, inline
+from tanscope.handlers import commands, download, inline, track
+from tanscope.services.watch.scheduler import WatchScheduler
 
 
 async def run() -> None:
@@ -18,14 +20,17 @@ async def run() -> None:
     await init_db(engine)
 
     bot = await container.get(Bot)
+    scheduler = await container.get(WatchScheduler)
     dispatcher = Dispatcher()
-    dispatcher.include_routers(commands.router, inline.router, download.router)
+    dispatcher.include_routers(commands.router, track.router, inline.router, download.router)
     setup_dishka(container=container, router=dispatcher, auto_inject=True)
 
+    watch_task = asyncio.create_task(scheduler.run())
     try:
         await bot.delete_webhook(drop_pending_updates=True)
         await dispatcher.start_polling(
             bot, allowed_updates=dispatcher.resolve_used_update_types()
         )
     finally:
+        watch_task.cancel()
         await container.close()
