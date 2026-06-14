@@ -15,7 +15,7 @@ Drop a TikTok, Instagram or Pinterest link into the bot and it sends back the vi
 ```
 Bot          aiogram 3 · dishka DI
 Image search DuckDuckGo (ddgs, no key)
-Download     yt-dlp · ffmpeg
+Download     yt-dlp (video) · gallery-dl (images) · ffmpeg
 Cache        Redis
 DB           SQLite · SQLAlchemy async
 Config       pydantic-settings
@@ -75,7 +75,7 @@ python -m tanscope
 
 Image search caches each query in Redis for 15 minutes, so repeated searches don't hammer DuckDuckGo. Results come back as native inline photos.
 
-Downloads go through yt-dlp, which handles all three platforms with one code path. Files land in a temp dir, get sent, then cleaned up. The interesting bit is the file_id cache: once a link's media is uploaded, Telegram hands back a `file_id`, and that's stored against the link for 30 days. Same link again means an instant resend, zero bandwidth, zero disk.
+Downloads use two engines behind one interface. yt-dlp goes first, great for video (TikTok, reels). When a link has no video (Instagram photos, Pinterest pins), it falls back to gallery-dl, which actually grabs images and carousels. Files land in a temp dir, get sent, then cleaned up. The interesting bit is the file_id cache: once a link's media is uploaded, Telegram hands back a `file_id`, and that's stored against the link for 30 days. Same link again means an instant resend, zero bandwidth, zero disk.
 
 Concurrent downloads are capped (a semaphore) so a flood of links can't exhaust the box.
 
