@@ -6,6 +6,7 @@ services:
     environment:
       REDIS_URL: redis://redis:6379/0
       SQLITE_PATH: /data/tanscope.sqlite3
+      WATCH_ARCHIVE_PATH: /data/watch-archive.sqlite
       COOKIES_FILE: /cookies/cookies.txt
     volumes:
       - botdata:/data

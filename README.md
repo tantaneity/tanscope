@@ -41,8 +41,10 @@ cp .env.example .env
 BOT_TOKEN=...          your token
 REDIS_URL=...          redis://localhost:6379/0 by default
 SQLITE_PATH=...        data/tanscope.sqlite3 by default
-ADMIN_IDS=...          comma-separated Telegram ids that can run /stats
+ADMIN_IDS=...          comma-separated Telegram ids for admin commands
 COOKIES_FILE=...       optional yt-dlp cookies.txt, needed for Instagram
+WATCH_INTERVAL_SECONDS=...  how often to poll tracked accounts (default 1800)
+WATCH_FETCH_LIMIT=...       newest N posts checked per poll (default 15)
 ```
 
 Missing or empty `BOT_TOKEN` and the bot refuses to start. Fails loud at boot, not somewhere deep in a handler.
@@ -80,6 +82,23 @@ Downloads use two engines behind one interface. yt-dlp goes first, great for vid
 Concurrent downloads are capped (a semaphore) so a flood of links can't exhaust the box.
 
 Stats land in SQLite: searches, downloads, cache hits, unique users, top platforms. Admins pull them with `/stats` (anyone in `ADMIN_IDS`). For everyone else the command stays invisible, no reply, not advertised.
+
+## Watching accounts
+
+Admins can follow specific people on a platform and get new posts in DM. Handy if you run a channel and want first dibs on what someone posts.
+
+```
+/track tiktok someuser
+/track instagram someuser
+/untrack instagram someuser
+/tracked
+```
+
+New posts land in your DM, so you decide what actually goes to the channel. Nothing auto-posts.
+
+Under the hood it polls each account on an interval (default 30 min) and leans on gallery-dl's download archive to tell what's new, so you never get the same post twice. The first poll after `/track` just records a baseline, no backfill flood. Same `ADMIN_IDS` gate, same cookies: Instagram and X need them, TikTok and Pinterest mostly don't.
+
+These commands are admin-only and invisible to regular users, same as `/stats`.
 
 ## Limits
 
