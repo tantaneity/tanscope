@@ -14,6 +14,8 @@ from tanscope.core.constants import MAX_CONCURRENT_DOWNLOADS
 from tanscope.db.engine import build_engine, build_session_factory
 from tanscope.db.stats_repository import StatsRepository
 from tanscope.services.download.base import DownloadSource
+from tanscope.services.download.composite import CompositeDownloadSource
+from tanscope.services.download.gallery_dl_source import GalleryDlSource
 from tanscope.services.download.resolver import PlatformResolver
 from tanscope.services.download.service import DownloadService
 from tanscope.services.download.ytdlp_source import YtDlpSource
@@ -69,7 +71,10 @@ class AppProvider(Provider):
 
     @provide
     def download_source(self, config: Config) -> DownloadSource:
-        return YtDlpSource(config.cookies_file)
+        return CompositeDownloadSource(
+            primary=YtDlpSource(config.cookies_file),
+            fallback=GalleryDlSource(config.cookies_file),
+        )
 
     @provide
     def download_semaphore(self) -> Semaphore:

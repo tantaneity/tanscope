@@ -4,7 +4,6 @@ import logging
 from aiogram import F, Router
 from aiogram.types import FSInputFile, InputMediaPhoto, InputMediaVideo, Message
 from dishka.integrations.aiogram import FromDishka
-from yt_dlp.utils import DownloadError as YtDlpDownloadError
 
 from tanscope.core.constants import MEDIA_GROUP_MAX_ITEMS
 from tanscope.db.models import EventKind
@@ -44,8 +43,12 @@ async def handle_link(
     status = await message.reply(DOWNLOADING_TEXT)
     try:
         result = await service.download(url, platform)
-    except (DownloadError, YtDlpDownloadError) as error:
+    except DownloadError as error:
         logger.warning("download failed for %s: %s", url, error)
+        await status.edit_text(FAILED_TEXT)
+        return
+    except Exception:
+        logger.exception("unexpected download error for %s", url)
         await status.edit_text(FAILED_TEXT)
         return
 
