@@ -14,3 +14,10 @@ MEDIA_GROUP_MIN_ITEMS: Final = 2
 MEDIA_GROUP_MAX_ITEMS: Final = 10
 
 STATS_TOP_LIMIT: Final = 5
+
+VIDEO_EXTENSIONS: Final = frozenset({".mp4", ".mov", ".webm", ".mkv"})
+IMAGE_EXTENSIONS: Final = frozenset({".jpg", ".jpeg", ".png", ".webp", ".gif"})
+YTDLP_RETRIES: Final = 3
+YTDLP_SOCKET_TIMEOUT_SECONDS: Final = 30
+YTDLP_CONCURRENT_FRAGMENTS: Final = 4
+CAPTION_MAX_LENGTH: Final = 200
