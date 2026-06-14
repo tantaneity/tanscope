@@ -10,7 +10,7 @@ router = Router()
 
 START_TEXT = (
     "🔍 Type my @username + a query in any chat to search images.\n"
-    "📥 Send a TikTok, Instagram or Pinterest link to download."
+    "📥 Send a TikTok, Instagram, Pinterest or X link to download."
 )
 
 

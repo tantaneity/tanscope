@@ -1,6 +1,6 @@
 # tanscope
 
-Telegram bot that does two things well. Search images inline (not Yandex, so Ukrainians can actually use it), and pull media down from TikTok, Instagram and Pinterest by link.
+Telegram bot that does two things well. Search images inline (not Yandex, so Ukrainians can actually use it), and pull media down from TikTok, Instagram, Pinterest and X (Twitter) by link.
 
 Think of it as @pic without the Yandex baggage, plus a downloader bolted on.
 
@@ -8,7 +8,7 @@ Think of it as @pic without the Yandex baggage, plus a downloader bolted on.
 
 Type `@your_bot cats` in any chat and pick from a grid of photos. The search runs on DuckDuckGo, no API key, nothing logged to a search giant.
 
-Drop a TikTok, Instagram or Pinterest link into the bot and it sends back the video or photos. Carousels come through as an album. Second time someone shares the same link, it ships from Telegram's own cache instantly (no re-download).
+Drop a TikTok, Instagram, Pinterest or X link into the bot and it sends back the video or photos. Carousels come through as an album. Second time someone shares the same link, it ships from Telegram's own cache instantly (no re-download).
 
 ## Stack
 
@@ -88,6 +88,8 @@ Bot uploads top out at 50 MB (Telegram's rule for bots), so oversized videos get
 Instagram is the awkward one. It gates media behind a login now, so anonymous fetches come back with zero items even for public posts. Feed the bot a cookies file and it works (same file helps with rate-limited TikTok too).
 
 Export your cookies with a browser extension like "Get cookies.txt LOCALLY", save it as `cookies/cookies.txt`, and that's it. Compose mounts the `cookies/` folder read-only and points `COOKIES_FILE` at it. No cookies, no Instagram, everything else still runs.
+
+X (Twitter) is the same deal. It gates guest access now, so anonymous fetches fail. Add your `x.com` cookies to the same `cookies.txt` and it works.
 
 Keep that file private. It's your session. `cookies/*.txt` is gitignored.
 

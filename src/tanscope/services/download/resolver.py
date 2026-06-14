@@ -10,6 +10,9 @@ _PLATFORM_PATTERNS: dict[Platform, re.Pattern[str]] = {
     Platform.PINTEREST: re.compile(
         r"https?://(?:[\w-]+\.)?(?:pinterest\.[\w.]+|pin\.it)/", re.IGNORECASE
     ),
+    Platform.TWITTER: re.compile(
+        r"https?://(?:[\w-]+\.)?(?:twitter\.com|x\.com)/", re.IGNORECASE
+    ),
 }
 
 _URL_TRAILING_CHARS = ").,>'\""

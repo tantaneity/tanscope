@@ -8,6 +8,7 @@ class Platform(StrEnum):
     TIKTOK = "tiktok"
     INSTAGRAM = "instagram"
     PINTEREST = "pinterest"
+    TWITTER = "twitter"
 
 
 class MediaKind(StrEnum):
