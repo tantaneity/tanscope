@@ -25,8 +25,9 @@ from tanscope.services.download.errors import NoMediaError
 
 
 class YtDlpSource(DownloadSource):
-    def __init__(self) -> None:
+    def __init__(self, cookies_file: Path | None = None) -> None:
         self._ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
+        self._cookies_file = cookies_file if cookies_file and cookies_file.exists() else None
 
     async def download(self, url: str, platform: Platform, dest: Path) -> DownloadResult:
         info = await asyncio.to_thread(self._run, url, dest)
@@ -55,6 +56,8 @@ class YtDlpSource(DownloadSource):
             "socket_timeout": YTDLP_SOCKET_TIMEOUT_SECONDS,
             "concurrent_fragment_downloads": YTDLP_CONCURRENT_FRAGMENTS,
         }
+        if self._cookies_file is not None:
+            options["cookiefile"] = str(self._cookies_file)
         with YoutubeDL(options) as downloader:
             return downloader.extract_info(url, download=True)
 

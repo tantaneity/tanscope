@@ -68,8 +68,8 @@ class AppProvider(Provider):
         return PlatformResolver()
 
     @provide
-    def download_source(self) -> DownloadSource:
-        return YtDlpSource()
+    def download_source(self, config: Config) -> DownloadSource:
+        return YtDlpSource(config.cookies_file)
 
     @provide
     def download_semaphore(self) -> Semaphore:

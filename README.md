@@ -42,6 +42,7 @@ BOT_TOKEN=...          your token
 REDIS_URL=...          redis://localhost:6379/0 by default
 SQLITE_PATH=...        data/tanscope.sqlite3 by default
 ADMIN_IDS=...          comma-separated Telegram ids that can run /stats
+COOKIES_FILE=...       optional yt-dlp cookies.txt, needed for Instagram
 ```
 
 Missing or empty `BOT_TOKEN` and the bot refuses to start. Fails loud at boot, not somewhere deep in a handler.
@@ -84,7 +85,11 @@ Stats land in SQLite: searches, downloads, cache hits, unique users, top platfor
 
 Bot uploads top out at 50 MB (Telegram's rule for bots), so oversized videos get skipped rather than sent half-broken.
 
-Instagram sometimes wants cookies for private or rate-limited content. Public posts work out of the box.
+Instagram is the awkward one. It gates media behind a login now, so anonymous fetches come back with zero items even for public posts. Feed the bot a cookies file and it works (same file helps with rate-limited TikTok too).
+
+Export your cookies with a browser extension like "Get cookies.txt LOCALLY", save it as `cookies/cookies.txt`, and that's it. Compose mounts the `cookies/` folder read-only and points `COOKIES_FILE` at it. No cookies, no Instagram, everything else still runs.
+
+Keep that file private. It's your session. `cookies/*.txt` is gitignored.
 
 DuckDuckGo can rate-limit if you really lean on it. For most chats it's fine.
 

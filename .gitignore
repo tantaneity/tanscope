@@ -9,5 +9,6 @@ venv/
 .pytest_cache/
 data/
 downloads/
+cookies/*.txt
 *.sqlite3
 *.db

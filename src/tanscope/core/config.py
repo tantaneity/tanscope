@@ -17,12 +17,20 @@ class Config(BaseSettings):
     sqlite_path: Path = Path("data/tanscope.sqlite3")
     downloads_dir: Path = Path("downloads")
     admin_ids: Annotated[frozenset[int], NoDecode] = frozenset()
+    cookies_file: Path | None = None
 
     @field_validator("admin_ids", mode="before")
     @classmethod
     def _parse_admin_ids(cls, value: Any) -> Any:
         if isinstance(value, str):
             return frozenset(int(part) for part in value.split(",") if part.strip())
+        return value
+
+    @field_validator("cookies_file", mode="before")
+    @classmethod
+    def _empty_cookies_to_none(cls, value: Any) -> Any:
+        if isinstance(value, str) and not value.strip():
+            return None
         return value
 
     @property

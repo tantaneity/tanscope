@@ -6,8 +6,10 @@ services:
     environment:
       REDIS_URL: redis://redis:6379/0
       SQLITE_PATH: /data/tanscope.sqlite3
+      COOKIES_FILE: /cookies/cookies.txt
     volumes:
       - botdata:/data
+      - ./cookies:/cookies:ro
     depends_on:
       redis:
         condition: service_healthy
