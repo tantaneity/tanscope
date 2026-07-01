@@ -10,7 +10,7 @@ from tanscope.services.watch.service import WatchService
 
 router = Router()
 
-USAGE_TEXT = "Usage: /track <tiktok|instagram|pinterest|twitter> <username>"
+USAGE_TEXT = "Usage: /track &lt;tiktok|instagram|pinterest|twitter&gt; &lt;username&gt;"
 
 
 @router.message(Command("track"))
