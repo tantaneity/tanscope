@@ -15,10 +15,10 @@ class GalleryDlSource(DownloadSource):
 
     async def download(self, url: str, platform: Platform, dest: Path) -> DownloadResult:
         with writable_cookies(self._cookies_file) as cookies:
-            await self._run(url, dest, cookies)
+            stderr = await self._run(url, dest, cookies)
         items = collect_media(dest)
         if not items:
-            raise NoMediaError(url)
+            raise NoMediaError(stderr.strip() or url)
         return DownloadResult(
             platform=platform,
             title=platform.value,
@@ -27,7 +27,7 @@ class GalleryDlSource(DownloadSource):
             items=items,
         )
 
-    async def _run(self, url: str, dest: Path, cookies: Path | None) -> None:
+    async def _run(self, url: str, dest: Path, cookies: Path | None) -> str:
         args = [sys.executable, "-m", "gallery_dl", "-q", "-D", str(dest)]
         if cookies is not None:
             args += ["--cookies", str(cookies)]
@@ -38,8 +38,9 @@ class GalleryDlSource(DownloadSource):
             stderr=asyncio.subprocess.PIPE,
         )
         try:
-            await asyncio.wait_for(process.communicate(), timeout=DOWNLOAD_TIMEOUT_SECONDS)
+            _, stderr = await asyncio.wait_for(process.communicate(), timeout=DOWNLOAD_TIMEOUT_SECONDS)
         except TimeoutError as error:
             process.kill()
             await process.wait()
-            raise NoMediaError(url) from error
+            raise NoMediaError(f"gallery-dl timed out after {DOWNLOAD_TIMEOUT_SECONDS}s") from error
+        return stderr.decode("utf-8", "replace")

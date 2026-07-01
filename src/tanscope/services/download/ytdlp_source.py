@@ -66,7 +66,7 @@ class YtDlpSource(DownloadSource):
                 with YoutubeDL(options) as downloader:
                     return downloader.extract_info(url, download=True)
             except YtDlpDownloadError as error:
-                raise NoMediaError(url) from error
+                raise NoMediaError(str(error) or url) from error
 
     @staticmethod
     def _title(info: dict[str, Any], platform: Platform) -> str:

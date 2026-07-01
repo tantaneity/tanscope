@@ -16,8 +16,8 @@ class CompositeDownloadSource(DownloadSource):
     async def download(self, url: str, platform: Platform, dest: Path) -> DownloadResult:
         try:
             return await self._primary.download(url, platform, dest)
-        except NoMediaError:
-            logger.info("primary source produced no media, falling back for %s", url)
+        except NoMediaError as error:
+            logger.info("primary source failed for %s, falling back: %s", url, error)
             self._empty(dest)
             return await self._fallback.download(url, platform, dest)
 
