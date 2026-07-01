@@ -18,6 +18,7 @@ from tanscope.services.delivery import MediaDelivery
 from tanscope.services.download.base import DownloadSource
 from tanscope.services.download.composite import CompositeDownloadSource
 from tanscope.services.download.gallery_dl_source import GalleryDlSource
+from tanscope.services.download.instagram_source import InstagramGraphqlSource
 from tanscope.services.download.resolver import PlatformResolver
 from tanscope.services.download.service import DownloadService
 from tanscope.services.download.ytdlp_source import YtDlpSource
@@ -81,8 +82,11 @@ class AppProvider(Provider):
     @provide
     def download_source(self, config: Config) -> DownloadSource:
         return CompositeDownloadSource(
-            primary=YtDlpSource(config.cookies_file),
-            fallback=GalleryDlSource(config.cookies_file),
+            primary=InstagramGraphqlSource(config.cookies_file),
+            fallback=CompositeDownloadSource(
+                primary=YtDlpSource(config.cookies_file),
+                fallback=GalleryDlSource(config.cookies_file),
+            ),
         )
 
     @provide
