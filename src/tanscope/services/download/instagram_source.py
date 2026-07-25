@@ -7,11 +7,11 @@ from typing import Any
 import aiohttp
 
 from tanscope.core.constants import (
+    BROWSER_USER_AGENT,
     DOWNLOAD_TIMEOUT_SECONDS,
     INSTAGRAM_APP_ID,
     INSTAGRAM_GRAPHQL_URL,
     INSTAGRAM_POST_DOC_ID,
-    INSTAGRAM_USER_AGENT,
     MAX_DOWNLOAD_BYTES,
 )
 from tanscope.services.download.base import DownloadResult, DownloadSource, MediaKind, Platform
@@ -55,7 +55,7 @@ class InstagramGraphqlSource(DownloadSource):
         self, session: aiohttp.ClientSession, shortcode: str, cookies: dict[str, str]
     ) -> dict[str, Any]:
         headers = {
-            "User-Agent": INSTAGRAM_USER_AGENT,
+            "User-Agent": BROWSER_USER_AGENT,
             "X-IG-App-ID": INSTAGRAM_APP_ID,
             "X-CSRFToken": cookies.get("csrftoken", ""),
             "X-Requested-With": "XMLHttpRequest",
@@ -80,7 +80,7 @@ class InstagramGraphqlSource(DownloadSource):
     async def _download_all(
         self, session: aiohttp.ClientSession, media: list["Media"], dest: Path
     ) -> None:
-        headers = {"User-Agent": INSTAGRAM_USER_AGENT}
+        headers = {"User-Agent": BROWSER_USER_AGENT}
         for index, item in enumerate(media):
             suffix = ".mp4" if item.kind is MediaKind.VIDEO else ".jpg"
             target = dest / f"{index:03d}{suffix}"
