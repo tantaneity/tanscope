@@ -2,7 +2,7 @@ import asyncio
 import sys
 from pathlib import Path
 
-from tanscope.core.constants import DOWNLOAD_TIMEOUT_SECONDS
+from tanscope.core.constants import BROWSER_USER_AGENT, DOWNLOAD_TIMEOUT_SECONDS
 from tanscope.services.download.base import DownloadResult, DownloadSource, Platform
 from tanscope.services.download.cookies import writable_cookies
 from tanscope.services.download.errors import NoMediaError
@@ -28,7 +28,18 @@ class GalleryDlSource(DownloadSource):
         )
 
     async def _run(self, url: str, dest: Path, cookies: Path | None) -> str:
-        args = [sys.executable, "-m", "gallery_dl", "-q", "-D", str(dest)]
+        args = [
+            sys.executable,
+            "-m",
+            "gallery_dl",
+            "-q",
+            "-D",
+            str(dest),
+            "-o",
+            f"user-agent={BROWSER_USER_AGENT}",
+            "-o",
+            "cookies-update=false",
+        ]
         if cookies is not None:
             args += ["--cookies", str(cookies)]
         args.append(url)
