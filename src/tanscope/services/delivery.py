@@ -3,7 +3,7 @@ import html
 from aiogram import Bot
 from aiogram.types import FSInputFile, InputMediaPhoto, InputMediaVideo, Message
 
-from tanscope.core.constants import MEDIA_GROUP_MAX_ITEMS
+from tanscope.core.constants import MEDIA_GROUP_MAX_ITEMS, NO_CAPTION_FLAGS
 from tanscope.services.download.base import CachedMedia, MediaItem, MediaKind
 from tanscope.services.download.errors import DownloadError
 
@@ -16,7 +16,7 @@ class MediaDelivery:
         self._bot = bot
 
     async def send_paths(
-        self, chat_id: int, items: list[MediaItem], caption: str
+        self, chat_id: int, items: list[MediaItem], caption: str | None
     ) -> list[CachedMedia]:
         pairs: list[MediaPair] = [
             (item.kind, FSInputFile(item.path)) for item in items[:MEDIA_GROUP_MAX_ITEMS]
@@ -27,11 +27,15 @@ class MediaDelivery:
             for (kind, _), message in zip(pairs, sent)
         ]
 
-    async def send_cached(self, chat_id: int, cached: list[CachedMedia], caption: str) -> None:
+    async def send_cached(
+        self, chat_id: int, cached: list[CachedMedia], caption: str | None
+    ) -> None:
         pairs: list[MediaPair] = [(item.kind, item.file_id) for item in cached[:MEDIA_GROUP_MAX_ITEMS]]
         await self._deliver(chat_id, pairs, caption)
 
-    async def _deliver(self, chat_id: int, pairs: list[MediaPair], caption: str) -> list[Message]:
+    async def _deliver(
+        self, chat_id: int, pairs: list[MediaPair], caption: str | None
+    ) -> list[Message]:
         if not pairs:
             return []
         if len(pairs) == 1:
@@ -45,7 +49,7 @@ class MediaDelivery:
         return await self._bot.send_media_group(chat_id, group)
 
     async def _send_single(
-        self, chat_id: int, kind: MediaKind, source: MediaSource, caption: str
+        self, chat_id: int, kind: MediaKind, source: MediaSource, caption: str | None
     ) -> Message:
         if kind == MediaKind.VIDEO:
             return await self._bot.send_video(chat_id, source, caption=caption)
@@ -58,6 +62,12 @@ def _file_id(message: Message, kind: MediaKind) -> str:
     if kind == MediaKind.PHOTO and message.photo:
         return message.photo[-1].file_id
     raise DownloadError("no file_id in sent message")
+
+
+def strip_no_caption(text: str) -> tuple[str, bool]:
+    words = text.split()
+    kept = [word for word in words if word.lower() not in NO_CAPTION_FLAGS]
+    return " ".join(kept), len(kept) == len(words)
 
 
 def build_caption(title: str, url: str | None = None) -> str:

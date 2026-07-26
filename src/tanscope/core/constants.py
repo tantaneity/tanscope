@@ -3,6 +3,9 @@ from typing import Final
 INLINE_RESULTS_LIMIT: Final = 30
 INLINE_QUERY_MIN_LENGTH: Final = 2
 INLINE_CACHE_TIME_SECONDS: Final = 300
+INLINE_NOTICE_CACHE_TIME_SECONDS: Final = 0
+
+NO_CAPTION_FLAGS: Final = frozenset({"-nc", "--no-caption"})
 
 IMAGE_SEARCH_CACHE_TTL_SECONDS: Final = 900
 FILE_ID_CACHE_TTL_SECONDS: Final = 60 * 60 * 24 * 30
