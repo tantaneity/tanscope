@@ -79,27 +79,18 @@ docker compose logs -f bot
 
 ## Deploy
 
-The box that runs this sits at home behind NAT, so nothing pushes into it from outside. A GitHub self-hosted runner lives on that machine and pulls on every push to `main`.
-
-One-time setup on the host, in Settings → Actions → Runners → New self-hosted runner (copy the token from there):
+The box that runs this sits at home behind NAT, so nothing pushes into it from outside. Deploys go the other way: get on the machine (Tailscale, ssh) and pull.
 
 ```
-mkdir ~/actions-runner && cd ~/actions-runner
-curl -o r.tar.gz -L https://github.com/actions/runner/releases/latest/download/actions-runner-linux-x64.tar.gz
-tar xzf r.tar.gz
-./config.sh --url https://github.com/tantaneity/tanscope --token <TOKEN> --labels tanscope
-sudo ./svc.sh install && sudo ./svc.sh start
+cd ~/tanscope
+git pull --ff-only
+docker compose up -d --build
+docker compose logs -f bot
 ```
 
-Then point the workflow at the existing clone (Settings → Actions → Variables):
+Deploy into the clone you already set up rather than a fresh one. `.env`, `cookies/cookies.txt` and the SQLite volume live there, all three gitignored, and a fresh clone means a different compose project name and a different volume (goodbye stats).
 
-```
-DEPLOY_DIR=/home/you/tanscope
-```
-
-That's deliberate. Deploys land in the clone you already set up, so `.env`, `cookies/cookies.txt` and the SQLite volume stay where they are (all three are gitignored, and a hard reset leaves untracked files alone). Local edits to tracked files on that box do get thrown away, the runner treats `origin/main` as truth.
-
-Push to `main`, the runner rebuilds and restarts. Manual run works too, `workflow_dispatch` is on.
+Three commands is not worth a pipeline. If it ever is, the answer is a self-hosted runner on that same box, not SSH from a workflow.
 
 ## Local dev
 
