@@ -1,9 +1,20 @@
 import html
 
 from aiogram import Bot
-from aiogram.types import FSInputFile, InputMediaPhoto, InputMediaVideo, Message
+from aiogram.types import (
+    BufferedInputFile,
+    FSInputFile,
+    InputMediaPhoto,
+    InputMediaVideo,
+    Message,
+)
 
-from tanscope.core.constants import MEDIA_GROUP_MAX_ITEMS, NO_CAPTION_FLAGS
+from tanscope.core.constants import (
+    MEDIA_GROUP_MAX_ITEMS,
+    NO_CAPTION_FLAGS,
+    PLACEHOLDER_FILENAME,
+    PLACEHOLDER_PNG,
+)
 from tanscope.services.download.base import CachedMedia, MediaItem, MediaKind
 from tanscope.services.download.errors import DownloadError
 
@@ -14,6 +25,16 @@ MediaPair = tuple[MediaKind, MediaSource]
 class MediaDelivery:
     def __init__(self, bot: Bot) -> None:
         self._bot = bot
+        self._placeholder_file_id: str | None = None
+
+    async def placeholder_photo_id(self, chat_id: int) -> str:
+        if self._placeholder_file_id is None:
+            message = await self._bot.send_photo(
+                chat_id, BufferedInputFile(PLACEHOLDER_PNG, filename=PLACEHOLDER_FILENAME)
+            )
+            self._placeholder_file_id = _file_id(message, MediaKind.PHOTO)
+            await message.delete()
+        return self._placeholder_file_id
 
     async def send_paths(
         self, chat_id: int, items: list[MediaItem], caption: str | None

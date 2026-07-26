@@ -10,7 +10,11 @@ Type `@your_bot cats` in any chat and pick from a grid of photos. The search run
 
 Drop a TikTok, Instagram, Pinterest or X link into the bot and it sends back the video or photos. Carousels come through as an album. Second time someone shares the same link, it ships from Telegram's own cache instantly (no re-download).
 
-Links work inline too. Type `@your_bot <link>` in any chat and the media comes back as a pickable result, no need to DM the bot first. Telegram won't let a bot upload a file straight into an inline answer, so the first query kicks off the download in the background and answers with a "downloading" placeholder. Give it a few seconds, send the same query again, and the media is there (it's the same 30-day `file_id` cache the DM flow uses). That background upload needs somewhere to live: `MEDIA_CHAT_ID`, or your first admin id if you skip it.
+Links work inline too. Type `@your_bot <link>` in any chat, pick the single result, and the media lands in the chat. One step, no need to DM the bot first.
+
+Telegram won't let a bot upload a file straight into an inline answer, so what actually gets sent is a dark placeholder frame captioned "Downloading…". The download starts the moment you type, and once the file is up the bot swaps the media inside that same message. Usually a couple of seconds. Already-seen links skip all of it and come straight from the 30-day `file_id` cache. Carousels are the one compromise: an inline message holds one photo or video, so you get the first item and a hint to send the link to the bot directly for the whole album.
+
+The swap needs a chat to upload through: `MEDIA_CHAT_ID`, or your lowest admin id if you leave it empty. Turn on `/setinlinefeedback` in BotFather, otherwise Telegram never tells the bot which result got picked and the placeholder just sits there.
 
 Don't want the source link glued under the media? Add `-nc` (or `--no-caption`) anywhere in the message or the inline query:
 
