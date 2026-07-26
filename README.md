@@ -10,6 +10,15 @@ Type `@your_bot cats` in any chat and pick from a grid of photos. The search run
 
 Drop a TikTok, Instagram, Pinterest or X link into the bot and it sends back the video or photos. Carousels come through as an album. Second time someone shares the same link, it ships from Telegram's own cache instantly (no re-download).
 
+Links work inline too. Type `@your_bot <link>` in any chat and the media comes back as a pickable result, no need to DM the bot first. Telegram won't let a bot upload a file straight into an inline answer, so the first query kicks off the download in the background and answers with a "downloading" placeholder. Give it a few seconds, send the same query again, and the media is there (it's the same 30-day `file_id` cache the DM flow uses). That background upload needs somewhere to live: `MEDIA_CHAT_ID`, or your first admin id if you skip it.
+
+Don't want the source link glued under the media? Add `-nc` (or `--no-caption`) anywhere in the message or the inline query:
+
+```
+https://www.tiktok.com/@user/video/123 -nc
+@your_bot https://pin.it/abc --no-caption
+```
+
 ## Stack
 
 ```
@@ -42,6 +51,7 @@ BOT_TOKEN=...          your token
 REDIS_URL=...          redis://localhost:6379/0 by default
 SQLITE_PATH=...        data/tanscope.sqlite3 by default
 ADMIN_IDS=...          comma-separated Telegram ids for admin commands
+MEDIA_CHAT_ID=...      chat the bot uploads to when caching inline links (defaults to lowest admin id)
 COOKIES_FILE=...       optional yt-dlp cookies.txt, needed for Instagram
 WATCH_INTERVAL_SECONDS=...  how often to poll tracked accounts (default 1800)
 WATCH_FETCH_LIMIT=...       newest N posts checked per poll (default 15)

@@ -19,6 +19,7 @@ class Config(BaseSettings):
     sqlite_path: Path = Path("data/tanscope.sqlite3")
     downloads_dir: Path = Path("downloads")
     admin_ids: Annotated[frozenset[int], NoDecode] = frozenset()
+    media_chat_id: int | None = None
     cookies_file: Path | None = None
     watch_archive_path: Path = Path("data/watch-archive.sqlite")
     watch_interval_seconds: int = WATCH_INTERVAL_SECONDS
@@ -37,6 +38,12 @@ class Config(BaseSettings):
         if isinstance(value, str) and not value.strip():
             return None
         return value
+
+    @property
+    def media_cache_chat_id(self) -> int | None:
+        if self.media_chat_id is not None:
+            return self.media_chat_id
+        return next(iter(sorted(self.admin_ids)), None)
 
     @property
     def database_url(self) -> str:
