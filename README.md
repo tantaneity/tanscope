@@ -73,6 +73,30 @@ Logs:
 docker compose logs -f bot
 ```
 
+## Deploy
+
+The box that runs this sits at home behind NAT, so nothing pushes into it from outside. A GitHub self-hosted runner lives on that machine and pulls on every push to `main`.
+
+One-time setup on the host, in Settings → Actions → Runners → New self-hosted runner (copy the token from there):
+
+```
+mkdir ~/actions-runner && cd ~/actions-runner
+curl -o r.tar.gz -L https://github.com/actions/runner/releases/latest/download/actions-runner-linux-x64.tar.gz
+tar xzf r.tar.gz
+./config.sh --url https://github.com/tantaneity/tanscope --token <TOKEN> --labels tanscope
+sudo ./svc.sh install && sudo ./svc.sh start
+```
+
+Then point the workflow at the existing clone (Settings → Actions → Variables):
+
+```
+DEPLOY_DIR=/home/you/tanscope
+```
+
+That's deliberate. Deploys land in the clone you already set up, so `.env`, `cookies/cookies.txt` and the SQLite volume stay where they are (all three are gitignored, and a hard reset leaves untracked files alone). Local edits to tracked files on that box do get thrown away, the runner treats `origin/main` as truth.
+
+Push to `main`, the runner rebuilds and restarts. Manual run works too, `workflow_dispatch` is on.
+
 ## Local dev
 
 Need Python 3.12+ and a Redis running somewhere.
