@@ -50,6 +50,9 @@ BROWSER_USER_AGENT: Final = (
 
 GALLERY_DL_BROWSER_PROFILE: Final = "firefox"
 
+SHORT_LINK_USER_AGENT: Final = "facebookexternalhit/1.1"
+SHORT_LINK_RESOLVE_TIMEOUT_SECONDS: Final = 5
+
 INSTAGRAM_GRAPHQL_URL: Final = "https://www.instagram.com/graphql/query"
 INSTAGRAM_POST_DOC_ID: Final = "10015901848480474"
 INSTAGRAM_APP_ID: Final = "936619743392459"
