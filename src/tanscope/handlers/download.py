@@ -1,7 +1,8 @@
 import logging
 
-from aiogram import F, Router
+from aiogram import Bot, F, Router
 from aiogram.types import Message
+from aiogram.utils.chat_action import ChatActionSender
 from dishka.integrations.aiogram import FromDishka
 
 from tanscope.db.models import EventKind
@@ -13,7 +14,6 @@ from tanscope.services.download.service import DownloadService
 logger = logging.getLogger(__name__)
 router = Router()
 
-DOWNLOADING_TEXT = "📥 Downloading…"
 FAILED_TEXT = "❌ Couldn't download. Check the link or try later."
 
 
@@ -23,6 +23,7 @@ async def handle_link(
     service: FromDishka[DownloadService],
     stats: FromDishka[StatsRepository],
     delivery: FromDishka[MediaDelivery],
+    bot: FromDishka[Bot],
 ) -> None:
     text, wants_caption = strip_no_caption(message.text or "")
     match = service.find(text)
@@ -38,16 +39,16 @@ async def handle_link(
         await stats.record(user_id, EventKind.DOWNLOAD, url, platform.value, cached=True)
         return
 
-    status = await message.reply(DOWNLOADING_TEXT)
     try:
-        result = await service.download(url, platform)
+        async with ChatActionSender.upload_document(bot=bot, chat_id=message.chat.id):
+            result = await service.download(url, platform)
     except DownloadError as error:
         logger.warning("download failed for %s: %s", url, error)
-        await status.edit_text(FAILED_TEXT)
+        await message.reply(FAILED_TEXT)
         return
     except Exception:
         logger.exception("unexpected download error for %s", url)
-        await status.edit_text(FAILED_TEXT)
+        await message.reply(FAILED_TEXT)
         return
 
     try:
@@ -57,4 +58,3 @@ async def handle_link(
         await stats.record(user_id, EventKind.DOWNLOAD, url, platform.value, cached=False)
     finally:
         service.cleanup(result)
-        await status.delete()
