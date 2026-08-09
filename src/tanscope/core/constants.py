@@ -48,6 +48,8 @@ BROWSER_USER_AGENT: Final = (
     "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 )
 
+GALLERY_DL_BROWSER_PROFILE: Final = "firefox"
+
 INSTAGRAM_GRAPHQL_URL: Final = "https://www.instagram.com/graphql/query"
 INSTAGRAM_POST_DOC_ID: Final = "10015901848480474"
 INSTAGRAM_APP_ID: Final = "936619743392459"

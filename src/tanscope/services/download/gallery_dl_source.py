@@ -2,7 +2,7 @@ import asyncio
 import sys
 from pathlib import Path
 
-from tanscope.core.constants import BROWSER_USER_AGENT, DOWNLOAD_TIMEOUT_SECONDS
+from tanscope.core.constants import DOWNLOAD_TIMEOUT_SECONDS, GALLERY_DL_BROWSER_PROFILE
 from tanscope.services.download.base import DownloadResult, DownloadSource, Platform
 from tanscope.services.download.cookies import writable_cookies
 from tanscope.services.download.errors import NoMediaError
@@ -27,7 +27,7 @@ class GalleryDlSource(DownloadSource):
             items=items,
         )
 
-    async def _run(self, url: str, dest: Path, cookies: Path | None) -> str:
+    def build_args(self, url: str, dest: Path, cookies: Path | None) -> list[str]:
         args = [
             sys.executable,
             "-m",
@@ -36,13 +36,17 @@ class GalleryDlSource(DownloadSource):
             "-D",
             str(dest),
             "-o",
-            f"user-agent={BROWSER_USER_AGENT}",
+            f"browser={GALLERY_DL_BROWSER_PROFILE}",
             "-o",
             "cookies-update=false",
         ]
         if cookies is not None:
             args += ["--cookies", str(cookies)]
         args.append(url)
+        return args
+
+    async def _run(self, url: str, dest: Path, cookies: Path | None) -> str:
+        args = self.build_args(url, dest, cookies)
         process = await asyncio.create_subprocess_exec(
             *args,
             stdout=asyncio.subprocess.PIPE,
