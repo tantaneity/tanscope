@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -18,12 +19,16 @@ from tanscope.services.download.cookies import writable_cookies
 from tanscope.services.download.errors import NoMediaError
 from tanscope.services.download.media_files import collect_media
 
+logger = logging.getLogger(__name__)
 
-class _SilentLogger:
+
+class _YtDlpLogger:
     def debug(self, message: str) -> None: ...
     def info(self, message: str) -> None: ...
-    def warning(self, message: str) -> None: ...
     def error(self, message: str) -> None: ...
+
+    def warning(self, message: str) -> None:
+        logger.warning("yt-dlp: %s", message)
 
 
 class YtDlpSource(DownloadSource):
@@ -49,8 +54,8 @@ class YtDlpSource(DownloadSource):
             options: dict[str, Any] = {
                 "outtmpl": str(dest / "%(autonumber)03d-%(id)s.%(ext)s"),
                 "quiet": True,
-                "no_warnings": True,
-                "logger": _SilentLogger(),
+                "no_warnings": False,
+                "logger": _YtDlpLogger(),
                 "noplaylist": False,
                 "ignoreerrors": False,
                 "ffmpeg_location": self._ffmpeg_path,
