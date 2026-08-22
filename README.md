@@ -57,6 +57,7 @@ SQLITE_PATH=...        data/tanscope.sqlite3 by default
 ADMIN_IDS=...          comma-separated Telegram ids for admin commands
 MEDIA_CHAT_ID=...      chat the bot uploads to when caching inline links (defaults to lowest admin id)
 COOKIES_FILE=...       optional yt-dlp cookies.txt, needed for Instagram
+WATCH_ENABLED=...           false turns the watcher off entirely (default true)
 WATCH_INTERVAL_SECONDS=...  how often to poll tracked accounts (default 1800)
 WATCH_FETCH_LIMIT=...       newest N posts checked per poll (default 15)
 ```

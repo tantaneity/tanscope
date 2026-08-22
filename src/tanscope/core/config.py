@@ -21,6 +21,7 @@ class Config(BaseSettings):
     admin_ids: Annotated[frozenset[int], NoDecode] = frozenset()
     media_chat_id: int | None = None
     cookies_file: Path | None = None
+    watch_enabled: bool = True
     watch_archive_path: Path = Path("data/watch-archive.sqlite")
     watch_interval_seconds: int = WATCH_INTERVAL_SECONDS
     watch_fetch_limit: int = WATCH_FETCH_LIMIT

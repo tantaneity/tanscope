@@ -11,13 +11,21 @@ logger = logging.getLogger(__name__)
 
 class WatchScheduler:
     def __init__(
-        self, service: WatchService, delivery: MediaDelivery, interval_seconds: int
+        self,
+        service: WatchService,
+        delivery: MediaDelivery,
+        interval_seconds: int,
+        is_enabled: bool = True,
     ) -> None:
         self._service = service
         self._delivery = delivery
         self._interval = interval_seconds
+        self._is_enabled = is_enabled
 
     async def run(self) -> None:
+        if not self._is_enabled:
+            logger.info("watcher is off (WATCH_ENABLED=false), tracked accounts stay untouched")
+            return
         while True:
             await self._tick()
             await asyncio.sleep(self._interval)

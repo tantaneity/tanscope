@@ -11,6 +11,7 @@ from tanscope.services.watch.service import WatchService
 router = Router()
 
 USAGE_TEXT = "Usage: /track &lt;tiktok|instagram|pinterest|twitter&gt; &lt;username&gt;"
+WATCHER_OFF_TEXT = "Watcher is off (WATCH_ENABLED=false). Nothing is being polled."
 
 
 @router.message(Command("track"))
@@ -21,6 +22,9 @@ async def handle_track(
     config: FromDishka[Config],
 ) -> None:
     if not is_admin(message.from_user, config) or message.from_user is None:
+        return
+    if not config.watch_enabled:
+        await message.answer(WATCHER_OFF_TEXT)
         return
     parsed = _parse(command.args)
     if parsed is None:

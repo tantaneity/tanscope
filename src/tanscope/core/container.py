@@ -135,4 +135,6 @@ class AppProvider(Provider):
     def watch_scheduler(
         self, service: WatchService, delivery: MediaDelivery, config: Config
     ) -> WatchScheduler:
-        return WatchScheduler(service, delivery, config.watch_interval_seconds)
+        return WatchScheduler(
+            service, delivery, config.watch_interval_seconds, config.watch_enabled
+        )
