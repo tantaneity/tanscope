@@ -68,10 +68,17 @@ class InstagramGraphqlSource(DownloadSource):
             "doc_id": INSTAGRAM_POST_DOC_ID,
             "variables": json.dumps({"shortcode": shortcode}),
         }
-        async with session.post(INSTAGRAM_GRAPHQL_URL, data=payload, headers=headers) as response:
-            if response.status != 200:
-                raise NoMediaError(f"instagram graphql status {response.status} for {shortcode}")
-            body = await response.json()
+        try:
+            async with session.post(
+                INSTAGRAM_GRAPHQL_URL, data=payload, headers=headers
+            ) as response:
+                if response.status != 200:
+                    raise NoMediaError(
+                        f"instagram graphql status {response.status} for {shortcode}"
+                    )
+                body = await response.json()
+        except aiohttp.ClientError as error:
+            raise NoMediaError(f"instagram graphql failed for {shortcode}: {error}") from error
         node: dict[str, Any] | None = (body.get("data") or {}).get("xdt_shortcode_media")
         if not node:
             raise NoMediaError(f"instagram post unavailable: {shortcode}")
